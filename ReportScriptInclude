@@ -1,0 +1,34 @@
+//on report set sys_id is one of
+javascript:var con = new ReportAJAX(); con.getCovType(); //may need global qualifier
+
+//script includes
+var ReportAJAX = Class.create();
+ReportAJAX.prototype = {
+    initialize: function() {},
+    getCovType: function() {
+        var answer = [];
+        var grItem = new GlideRecord('x_datrp_invoice_ma_invoice_item');
+        grItem.addEncodedQuery("contract_line_status=Active^sys_created_onONThis year@javascript:gs.beginningOfThisYear()@javascript:gs.endOfThisYear()");
+	//	grItem.groupBy('coverage_type_manufacturer');
+        grItem.query();
+        while (grItem.next()) {
+			var covTypeMan = grItem.coverage_type_manufacturer;
+			gs.info('debug getCovType covTypeMan ' + covTypeMan);
+            var gr = new GlideRecord('x_datrp_invoice_ma_company_svc_offering_mapping');
+			gr.addQuery('coverage_type_manufacturer',covTypeMan);
+            gr.query();
+            if (gr.next()) {
+				gs.info('Service offering in table '+gr.coverage_type_manufacturer.name+ ' ,'+gr.coverage_type_manufacturer.name);
+            }else{
+				answer.push(grItem.sys_id.toString());
+				gs.info('Service offering missing item sys id '+grItem.sys_id+' cov type '+grItem.coverage_type_manufacturer.name+ ' ,'+grItem.coverage_type_manufacturer.sys_id.toString());
+			}
+        }
+        var arrayUtil = new ArrayUtil();
+        answer = arrayUtil.unique(answer);
+        gs.info('debug getCovType answer ' + answer);
+        return answer.toString();
+    },
+    type: 'ReportAJAX'
+};
+
