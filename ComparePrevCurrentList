@@ -1,0 +1,22 @@
+  var grOld = new GlideRecord('u_notification_routing');
+        grOld.addEncodedQuery('u_company_listLIKE' + oldComp);
+        //var arr = [];
+        grOld.query();
+        while (grOld.next()) {
+            var lst = grOld.u_company_list.toString();
+            var splt = lst.split(',');
+
+
+            var toBeRemoved = oldComp.toString();
+            //             gs.info('debug combineNotifications splt ' + splt + ' oldComp' + oldComp + ' toberemoved ' + toBeRemoved);
+            var tempArr = [];
+            for (var i = 0; i < splt.length; i++) {
+                if (splt[i] != toBeRemoved)
+                    tempArr.push(splt[i].toString());
+                //             gs.info('debug combineNotifications splt i ' + i + ' splt[i] ' + splt[i] + ' tempArr' + tempArr + ' str.length ' + splt.length);
+
+            }
+            grOld.u_company_list = tempArr.join(',');
+            grOld.setWorkflow(false);
+            grOld.update();
+        }
